@@ -97,15 +97,19 @@ def getTeamName(ClientName, connection, endTime, gotName):
 
 def Main():
     # MV.append(0)
-    ourPort = 2050
+
+    ourPort = 2051
+    # init the TCP connection
     sock = TCPInitConnection(ourPort)
+    # init the UDP connection
     cs, message = UDPInitConnection(ourPort)
     try:
         sock.listen()
         while True:
             tmp_counter = 0  # thread counter
             threads = []
-            tmp = True
+
+            # run for 10 sec and collecting players by adding them to the array of threads
             endTime = time.time() + 10
             while time.time() < endTime:
                 try:
@@ -118,7 +122,7 @@ def Main():
                     # initializing threads
                     connection, addr = sock.accept()
 
-                    # to check todo
+                    # set the connection socket non blocking
                     connection.settimeout(0)
 
                     t = threading.Thread(target=threaded, args=(connection,))
