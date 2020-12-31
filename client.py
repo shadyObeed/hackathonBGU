@@ -11,6 +11,8 @@ Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
 
+UDPPort = 13117
+buffSize = 1024
 
 # thread that sends packets to the server
 def startingGameThread(sock):
@@ -33,7 +35,7 @@ def printScoreResultThread(sock):
     try:
         endtime = time.time() + 10
         while time.time() < endtime:
-            output = sock.recv(1024)
+            output = sock.recv(buffSize)
             if output:
                 print(output.decode('utf-8'))
     except :
@@ -46,12 +48,12 @@ def Main():
     # init udp connection
     client = UDPConn()
     try:
-        client.bind(("", 13117))
+        client.bind(("", UDPPort))
     except:
         print(f"{Red}error binding{end}")
 
     while True:
-        data1, addr = client.recvfrom(1024)
+        data1, addr = client.recvfrom(buffSize)
         host, UDP_Port = addr
         try:
             data1, data2, TCP_Port = struct.unpack('!IBH', data1)
