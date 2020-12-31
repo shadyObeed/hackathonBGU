@@ -31,9 +31,11 @@ def threaded(connection):  # run func for threading
 
     n = random.randint(1, 2)
     if gotName:
+        # adding the player to his team
         addTeamName(ClientName, n)
-        message = f"{Green}you have 10 seconds start typing as fast as you cannnnnn{end}"
+        message = f"{Blue}you have 10 seconds start typing as fast as you cannnnnn{end}"
         try:
+            # sending the players welcome message
             connection.sendall(message.encode('utf-8'))
         except:
             print(f"{Red}connection from client lost{end}")
@@ -42,10 +44,12 @@ def threaded(connection):  # run func for threading
                 return
             except:
                 return
-
+    # count pressings on the key board that the player send to the server
     counter = getKeyboardInput(connection, counter)
+    # adding the count of pressing to the team of the player
     increaseCounter(counter, n)
     try:
+        # send the result of the game
         connection.sendall(GameOutput().encode())
         connection.close()
     except:
