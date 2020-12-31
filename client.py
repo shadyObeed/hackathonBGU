@@ -13,7 +13,7 @@ end = "\033[0;1m"
 
 
 # thread that sends packets to the server
-def startingThread(sock):
+def startingGameThread(sock):
     try:
         endtime = time.time() + 10
         while time.time() < endtime:
@@ -29,7 +29,7 @@ def startingThread(sock):
 
 
 # thread that listen to the server in the game so he can print the result of the game
-def ScoreOutput(sock):
+def printScoreResultThread(sock):
     try:
         endtime = time.time() + 10
         while time.time() < endtime:
@@ -87,18 +87,21 @@ def TCPConn(TCP_Port, host):
 def SendDataByThread(sock):
     DataIsFound = False
     endtime = time.time() + 10
+
+    # give the server 10 sec to give us the permition to start the game
     while time.time() < endtime and not DataIsFound:
         data = sock.recv(2048)
+        #starting the game
         if data is not None:
             print(data.decode('utf-8'))
 
             # starting a thread to send packets for 10 sec
-            sendingThread = Thread(target=startingThread, args=(sock,))
+            sendingThread = Thread(target=startingGameThread, args=(sock,))
             sendingThread.start()
             sendingThread.join()
 
             # starting a thread that prints what the server sends for 10 sec (for the result)
-            lisenerThread = Thread(target=ScoreOutput, args=(sock,))
+            lisenerThread = Thread(target=printScoreResultThread, args=(sock,))
             lisenerThread.start()
             lisenerThread.join()
 
