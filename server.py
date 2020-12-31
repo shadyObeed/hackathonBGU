@@ -86,12 +86,12 @@ def getKeyboardInput(connection, counter):
 # fun to increase the score of each player to his team
 def increaseCounter(counter, n):
     # using lock to prevent the overriding of the team score.
-    lock.acquire()
+    lock2.acquire()
     if (n == 1):
         Counter_TUP[0] = Counter_TUP[0] + counter
     else:
         Counter_TUP[1] = Counter_TUP[1] + counter
-    lock.release()
+    lock2.release()
 
 
 # function that get thae name of the player until getting \n
