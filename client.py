@@ -4,7 +4,6 @@ from threading import Thread
 import time
 import getch
 
-
 Bold = "\033[1m"
 Red = "\033[31;1m"
 Green = "\033[32;1m"
@@ -13,6 +12,7 @@ Blue = "\033[34;1m"
 end = "\033[0;1m"
 
 
+# thread that sends packets to the server
 def startingThread(sock):
     try:
         endtime = time.time()+10
@@ -26,8 +26,9 @@ def startingThread(sock):
 
     except:
         pass
-    # print('\nfineshed this round')
 
+
+# thread that listen to the server in the game so he can print the result of the game
 def ScoreOutput(sock):
     try:
         endtime = time.time()+10
@@ -38,7 +39,6 @@ def ScoreOutput(sock):
     except Exception as e : print(e)
 
 def Main():
-
     TEAM_NAME = f"{Yellow}Bugs Bunny\n{end}"
     print(f"{Green}Client started,listening for offer requests...\n{end}")
     client = UDPConn()
@@ -67,7 +67,7 @@ def Main():
             pass
 
 
-
+# init TCP connection with the server
 def TCPConn(TCP_Port, host):
     # TCP
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -79,23 +79,27 @@ def TCPConn(TCP_Port, host):
     return sock
 
 
+# fun that starts the game by opining two threads on for sending, the other for lisining for the result t the end of the game
 def SendDataByThread(sock):
     DataIsFound = False
-    endtime = time.time()+10
+    endtime = time.time() + 10
     while time.time() < endtime and not DataIsFound:
-        data = sock.recv(1024)
+        data = sock.recv(2048)
         if data is not None:
             print(data.decode('utf-8'))
-            # create the thread of sending
-            thread = Thread(target=startingThread, args=(sock,))
-            thread.start()
-            thread.join()
-            thread2 = Thread(target=ScoreOutput, args=(sock,))
-            thread2.start()
-            thread2.join()
+
+            # starting a thread to send packets for 10 sec
+            sendingThread = Thread(target=startingThread, args=(sock,))
+            sendingThread.start()
+            sendingThread.join()
+
+            # starting a thread that prints what the server sends for 10 sec (for the result)
+            lisenerThread = Thread(target=ScoreOutput, args=(sock,))
+            lisenerThread.start()
+            lisenerThread.join()
+
             DataIsFound = True
-        # else:
-        #     DataIsFound = False
+
 
 
 def UDPConn():
