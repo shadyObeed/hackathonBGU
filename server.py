@@ -25,7 +25,10 @@ def threaded(connection):  # run func for threading
     ClientName = ''
     gotName = False
     endTime = time.time() + 10
+
+    # giving the client 10 sec to send his name
     ClientName, gotName = getTeamName(ClientName, connection, endTime, gotName)
+
     n = random.randint(1, 2)
     if gotName:
         addTeamName(ClientName, n)
@@ -52,6 +55,7 @@ def threaded(connection):  # run func for threading
             pass
 
 
+# adding player to his team
 def addTeamName(ClientName, n):
     lock.acquire()
     if n == 2:
@@ -61,16 +65,9 @@ def addTeamName(ClientName, n):
     lock.release()
 
 
-def increaseCounter(counter, n):
-    lock.acquire()
-    if (n == 1):
-        Counter_TUP[0] = Counter_TUP[0] + counter
-    else:
-        Counter_TUP[1] = Counter_TUP[1] + counter
-    lock.release()
-
-
+# fun that adding points to the team of each player
 def getKeyboardInput(connection, counter):
+    # calculating points of pressing of the keyboard for 10 sec (the end of the game)
     endTime = time.time() + 10
     while time.time() < endTime:
         try:
@@ -82,6 +79,18 @@ def getKeyboardInput(connection, counter):
     return counter
 
 
+# fun to increase the score of each player to his team
+def increaseCounter(counter, n):
+    # using lock to prevent the overriding of the team score.
+    lock.acquire()
+    if (n == 1):
+        Counter_TUP[0] = Counter_TUP[0] + counter
+    else:
+        Counter_TUP[1] = Counter_TUP[1] + counter
+    lock.release()
+
+
+# function that get thae name of the player until getting \n
 def getTeamName(ClientName, connection, endTime, gotName):
     while time.time() < endTime and not gotName:
         try:
@@ -97,12 +106,13 @@ def getTeamName(ClientName, connection, endTime, gotName):
 
 def Main():
     # MV.append(0)
-
     ourPort = 2051
-    # init the TCP connection
+
+    # calling fun to init the TCP connection
     sock = TCPInitConnection(ourPort)
-    # init the UDP connection
+    # calling fun to init the UDP connection
     cs, message = UDPInitConnection(ourPort)
+
     try:
         sock.listen()
         while True:
@@ -130,26 +140,28 @@ def Main():
                     tmp_counter = tmp_counter + 1
                 except:
                     pass
+            # starting the game by stating the thread of each player
             for x in threads:
                 x.start()
             for x in threads:
                 x.join()
 
             if tmp_counter > 0:
+                # print the result of the game
                 print(GameOutput())
-                # initializing vars
+                # initializing vars before starting a new one
                 Counter_TUP[0] = 0
                 Counter_TUP[1] = 0
                 TUP[1] = []
                 TUP[0] = []
     except:
         pass
-        # print(f"{Red}listen failed{end}")
 
 
+# function that calculate the result of the game
 def GameOutput():
     toPrint = f"{Green}GROUP1\n==\n{end}" + str(TUP[0]) + '\n' + f"{Green}GROUP2\n==\n{end}" + str(TUP[1]) + '\n'
-    if (Counter_TUP[0] != 0 or Counter_TUP[1] != 0):
+    if Counter_TUP[0] != 0 or Counter_TUP[1] != 0:
         # MAXTEAM =max(Counter_TUP[1],Counter_TUP[0])
         if Counter_TUP[0] > Counter_TUP[1]:
             toPrint = toPrint + f"{Blue}GROUP 1 WINSS WITH {end}" + str(Counter_TUP[0]) + f"{Blue} POINTS{end}" + '\n'
@@ -167,6 +179,7 @@ def GameOutput():
     return toPrint
 
 
+# function that init the UDP connection that broadcast the game offer to the players
 def UDPInitConnection(ourPort):
     cs = socket(AF_INET, SOCK_DGRAM)
     cs.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -175,6 +188,7 @@ def UDPInitConnection(ourPort):
     return cs, message
 
 
+# function that init the TCP connection that that accepts the players clients
 def TCPInitConnection(ourPort):
     # TCP
     host = gethostname()
