@@ -18,6 +18,8 @@ Counter_TUP = [0, 0]
 lock = threading.Lock()
 lock2 = threading.Lock()
 MV = []
+BroadcastIP = '255.255.255.255'
+BroadcastPort = 13117
 
 
 def threaded(connection):  # run func for threading
@@ -110,7 +112,7 @@ def getTeamName(ClientName, connection, endTime, gotName):
 
 def Main():
     # MV.append(0)
-    ourPort = 2051
+    ourPort = random.randint(2000,40000)
 
     # calling fun to init the TCP connection
     sock = TCPInitConnection(ourPort)
@@ -127,7 +129,7 @@ def Main():
             endTime = time.time() + 10
             while time.time() < endTime:
                 try:
-                    cs.sendto(message, ('255.255.255.255', 13117))  # broadcast
+                    cs.sendto(message, (BroadcastIP, BroadcastPort))  # broadcast
                 except:
                     print(f"{Red}broadcasting failed{end}")
                 time.sleep(1)
@@ -162,11 +164,16 @@ def Main():
         pass
 
 
-# function that calculate the result of the game
+# function that formulates the output string
 def GameOutput():
-    toPrint = f"{Green}GROUP1\n==\n{end}" + str(TUP[0]) + '\n' + f"{Green}GROUP2\n==\n{end}" + str(TUP[1]) + '\n'
+    toPrint = f"{Green}GROUP1\n==\n{end}"
+    for x in TUP[0]:
+        toPrint = toPrint + x +'\n'
+    toPrint = toPrint + f"{Green}GROUP2\n==\n{end}"
+    for x in TUP[1]:
+        toPrint = toPrint + x +'\n'
+    toPrint = toPrint + '\n'
     if Counter_TUP[0] != 0 or Counter_TUP[1] != 0:
-        # MAXTEAM =max(Counter_TUP[1],Counter_TUP[0])
         if Counter_TUP[0] > Counter_TUP[1]:
             toPrint = toPrint + f"{Blue}GROUP 1 WINSS WITH {end}" + str(Counter_TUP[0]) + f"{Blue} POINTS{end}" + '\n'
             for x in TUP[0]:
@@ -177,9 +184,7 @@ def GameOutput():
                 toPrint = toPrint + x + '\n'
         else:
             toPrint = toPrint + f"{Blue}its a DRAWWWWWW{end} " + '\n'
-    # MV[0] = max(MV[0] ,Counter_TUP[0],Counter_TUP[1])
-    # if MV[0] == MAXTEAM:
-    #     toPrint = toPrint + 'The Winners has the best record ever!!!\n'
+
     return toPrint
 
 
@@ -196,7 +201,7 @@ def UDPInitConnection(ourPort):
 def TCPInitConnection(ourPort):
     # TCP
     host = gethostname()
-    print(f"{Green}server started, listening on IP address{end}", host)
+    print(f"{Green}server started, listening on IP address{end}",gethostbyname(host))
     sock = socket(AF_INET, SOCK_STREAM)
     server_address = (host, ourPort)
     try:
